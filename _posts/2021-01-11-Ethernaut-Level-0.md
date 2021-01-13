@@ -24,7 +24,7 @@ As of this time of writing, the only functional faucet I could find required eit
 
 Anyway, with my eth in hand thanks to a sockpuppet account, I was able to generate a new instance of this level and call the various contract functions from the web console.
 
-The first thing I did was look at the contract’s abi as suggested, and I noticed a function named ‘password’. So naturally I did what any reasonable person would do… I called the `password()` method.
+The first thing I did was look at the contract’s ABI as suggested, and I noticed a function named `password`. So naturally I did what any reasonable person would do… I called the `password()` method.
 
 ![password function call results](Images/blog_ethernaut0.0.jpg "password lvl 0")
 
