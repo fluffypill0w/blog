@@ -26,7 +26,7 @@ Anyway, with my eth in hand thanks to a sockpuppet account, I was able to genera
 
 The first thing I did was look at the contract’s ABI as suggested, and I noticed a function named `password`. So naturally I did what any reasonable person would do… I called the `password()` method.
 
-![password function call results](Images/blog_ethernaut0.0.jpg "password lvl 0")
+![password function call results](Images/blog_ethernaut00.jpg "password lvl 0")
 
 Now armed with what appeared to be the password, I had to figure out what to do with it. 
 
