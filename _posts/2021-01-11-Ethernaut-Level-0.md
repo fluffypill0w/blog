@@ -32,6 +32,6 @@ Now armed with what appeared to be the password, I had to figure out what to do 
 
 The instructions said to call the contract’s info method, so I did that and just kept going down the rabbit hole until I found I needed to pass the password to the `authenticate()` method as an argument.
 
-![pass to authenticate()](/home/gataclismo/blog/fluffypill0w.github.io/fluffypill0w/_posts/Images/blog_ethernaut01.jpeg "pass to authenticate")
+![pass to authenticate()](Images/blog_ethernaut01.jpeg "pass to authenticate")
 
 My submission was a success and I could then move on to the next level.
