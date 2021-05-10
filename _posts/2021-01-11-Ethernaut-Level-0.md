@@ -12,17 +12,15 @@ I read that the Ethernaut game was inspired by [overthewire](https://overthewire
 In each level of Ethernaut you need to find and exploit some security vulnerabilities in a smart contract. You’re playing from inside the EVM, with contracts written in Solidity.
 
 
-
-
-**Level 0 - Hello Ethernaut**
+# Level 0 - Hello Ethernaut
 
 This little introduction level teaches you how to play. 
 
-You’ll need to install the metamask plugin if you don’t already have it in your browser, and then connect it to the Rinkeby test network and get some eth from a faucet.
+You’ll need to install the metamask plugin if you don’t already have it in your browser, and then connect it to the Rinkeby test network and get some ETH from a faucet.
 
 As of this time of writing, the only functional faucet I could find required either a facebook or twitter account. Lately I’ve been thinking about identity as a concept and the role it plays in our lives, so this was interesting fuel for my ruminations.
 
-Anyway, with my eth in hand thanks to a sockpuppet account, I was able to generate a new instance of this level and call the various contract functions from the web console.
+Anyway, with my Eth in hand thanks to a sock puppet twitter account, I was able to generate a new instance of this level and call the various contract functions from the web console.
 
 The first thing I did was look at the contract’s ABI as suggested, and I noticed a function named `password`. So naturally I did what any reasonable person would do… I called the `password()` method.
 
