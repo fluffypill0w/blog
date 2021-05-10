@@ -60,7 +60,7 @@ We can see that inside the <code>transfer</code> function there is a subtraction
 
     require(balances[msg.sender] - _value >= 0);
 
-Given that we currently have 20 tokens, if we pass a value larger than 20 to <code>transfer</code> we'll [cause an overflow](https://medium.com/3-min-blockchain/understanding-uint-overflows-and-underflows-solidity-ethereum-8603339259e6)and the result will be a much larger integer, from which our previous balance of 20 will be subtracted and then the remaining tokens assigned to our address.
+Given that we currently have 20 tokens, if we pass a value larger than 20 to <code>transfer</code> we'll [cause an overflow](https://medium.com/3-min-blockchain/understanding-uint-overflows-and-underflows-solidity-ethereum-8603339259e6) and the result will be a much larger integer, from which our previous balance of 20 will be subtracted and then the remaining tokens assigned to our address.
 
 Let's pass the instance address and 21 tokens as arguments to  <code>transfer</code> and then check our balance:
 
