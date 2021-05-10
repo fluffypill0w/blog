@@ -6,8 +6,8 @@ categories: CTF Ethernaut
 ---
 
 It's been a while since my first post on the [Ethernaut challenge](), but everyone's favorite pillow is back with a 
-full walkthrough of each level. Here you can find the [code for all of my exploit contracts](), and an [explanation of 
-Level 0 here]().
+full walkthrough of each level. Here you can find the [code for all of my exploit contracts](https://github.com/fluffypill0w/ethernaut-solutions/tree/main/contracts), and an [explanation of 
+Level 0 here](https://fluffypill0w.github.io/blog/ctf/ethernaut/2021/01/11/Ethernaut-Level-0.html).
 
 ## Level 1 - Fallback
 
