@@ -185,7 +185,7 @@ Because this contract uses a fixed amount of gas, it may soon become completely 
 
 [Yul is an intermediate language](https://docs.soliditylang.org/en/latest/yul.html) that can be used for inline-assembly inside of a Solidity file, optimizing a program and saving a whole lot of gas. So, to whoever wrote that pastebin file, many thanks kind human(?) <3
 
-When we call our target contract's <code>buy</code> function it will in turn call into a our <code>price</code> function. Similar to level 11, we need to make it so our function can return two different prices without modifying the value of the <code>price</code> variable.
+When we call our target contract's <code>buy</code> function it will in turn call into our <code>price</code> function. Similar to level 11, we need to make it so our function can return two different prices without modifying the value of the <code>price</code> variable.
 
 To do this, we can use the <code>isSold</code> boolean of our target contract to change our price given that the value of <code>isSold</code> changes between function calls.
 
