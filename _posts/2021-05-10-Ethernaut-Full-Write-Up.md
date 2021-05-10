@@ -93,9 +93,7 @@ In this case, the password is stored in <code>slot 1</code> (<code>slot 0</code>
 
     await web3.eth.getStorageAt("YOUR_INSTANCE_ADDRESS", 1);
 
-We receive <code>"0x412076657279207374726f6e67207365637265742070617373776f7264203a29"</code> which we then need to pass to <code>unlock</code> in order to pass the level when we submit our instance:
-
-    await contract.unlock("0x412076657279207374726f6e67207365637265742070617373776f7264203a29")
+We will then need to pass the result to <code>unlock</code> in order to beat the level when we submit our instance.
 
 ## Level 9 - King
 
@@ -127,7 +125,7 @@ Once we call <code>goTo</code> from our attacker contract, our victim will call 
 
 I know what you're thinking. What in the world?? @$&%!!! I know, dear reader, because I once was where you are now. But fear not, just because we can't modify the state within the function itself doesn't mean that we can't from outside of it...
 
-I initialized a <code>bool</code> variable called <code>penthouseButton</code> within the <code>constructor</code> function and set it to <code>false</code>. Once we call <code>goTo</code>, the target contract will evaluate whichever floor number we've given it with our <code>isLastFloor</code> function, changing <code>penthouseButton</code> to <code>true</code> and returning <code>false</code>. When the function is called a subsequent time it will then return <code>true</code>.
+I initialized a <code>bool</code> called <code>penthouseButton</code> within the <code>constructor</code> function and set it to <code>false</code>. Once we call <code>goTo</code>, the target contract will evaluate whichever floor number we've given it with our <code>isLastFloor</code> function, changing <code>penthouseButton</code> to <code>true</code> and returning <code>false</code>. When the function is called a subsequent time it will then return <code>true</code>.
 
 [See the code.](https://github.com/fluffypill0w/ethernaut-solutions/blob/18d9ce865d3ba2dbfb825e1f0dc6fd475aa57fea/contracts/Level%2011%20-%20AttackElevator.sol)
 
@@ -183,13 +181,13 @@ Becoming a partner is straightforward enough, we just have to call <code>setWith
 
 ## Level 21 - Shop
 
-Because this contract uses a fixed amount of gas, it may soon become completely impossible to beat. I was still able to successfully pass this level thanks to some [hard-working soul's YUL code on pastebin](https://pastebin.com/4G4xuUDn).
+Because this contract uses a fixed amount of gas, it may soon become completely impossible to beat. I was still able to successfully pass this level thanks to some [hard-working soul's Yul code on pastebin](https://pastebin.com/4G4xuUDn).
 
-[YUL is an intermediate language](https://docs.soliditylang.org/en/latest/yul.html) that is lower-level than Solidity and can be used for inline-assembly inside of a Solidity file, optimizing a program and saving a whole lot of gas. So, to whoever wrote that pastebin file, many thanks kind human(?) <3
+[Yul is an intermediate language](https://docs.soliditylang.org/en/latest/yul.html) that can be used for inline-assembly inside of a Solidity file, optimizing a program and saving a whole lot of gas. So, to whoever wrote that pastebin file, many thanks kind human(?) <3
 
 When we call our target contract's <code>buy</code> function it will in turn call into a our <code>price</code> function. Similar to level 11, we need to make it so our function can return two different prices without modifying the value of the <code>price</code> variable.
 
-To do this, we can use the <code>isSold</code> boolean of our target contract to change our price given that this storage variable changes between function calls.
+To do this, we can use the <code>isSold</code> boolean of our target contract to change our price given that the value of <code>isSold</code> changes between function calls.
 
 [See the code.](https://github.com/fluffypill0w/ethernaut-solutions/blob/3ee5ac7b71843b05c8c1cdd301f4bbea58ad6090/contracts/Level%2021%20-%20AttackShop.sol)
 
