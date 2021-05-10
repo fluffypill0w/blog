@@ -12,7 +12,7 @@ I read that the Ethernaut game was inspired by [overthewire](https://overthewire
 In each level of Ethernaut you need to find and exploit some security vulnerabilities in a smart contract. You’re playing from inside the EVM, with contracts written in Solidity.
 
 
-# Level 0 - Hello Ethernaut
+## Level 0 - Hello Ethernaut
 
 This little introduction level teaches you how to play. 
 
