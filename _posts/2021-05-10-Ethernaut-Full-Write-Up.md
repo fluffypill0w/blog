@@ -5,8 +5,8 @@ date:   2021-05-10 10:58:33 +0200
 categories: CTF Ethernaut
 ---
 
-It's been a while since my first post on the [Ethernaut challenge](), but everyone's favorite pillow is back with a 
-full walkthrough of each level. Here you can find the [code for all of my exploit contracts](https://github.com/fluffypill0w/ethernaut-solutions/tree/main/contracts), and an [explanation of 
+It's been a while since my first post on the [Ethernaut challenge](https://ethernaut.openzeppelin.com/), but now everyone's favorite pillow is back with a 
+full walkthrough of each level. You can find the [code for all of my exploit contracts](https://github.com/fluffypill0w/ethernaut-solutions/tree/main/contracts), and an [explanation of 
 Level 0 here](https://fluffypill0w.github.io/blog/ctf/ethernaut/2021/01/11/Ethernaut-Level-0.html).
 
 ## Level 1 - Fallback
@@ -63,7 +63,7 @@ We can see that inside the <code>transfer</code> function there is a subtraction
 
 Given that we currently have 20 tokens, if we pass a value larger than 20 to <code>transfer</code> we'll [cause an overflow](https://medium.com/3-min-blockchain/understanding-uint-overflows-and-underflows-solidity-ethereum-8603339259e6) and the result will be a much larger integer, from which our previous balance of 20 will be subtracted and then the remaining tokens assigned to our address.
 
-Let's pass the instance address and 21 tokens as arguments to  <code>transfer</code> and then check our balance:
+Let's pass the instance address and 21 tokens as arguments to <code>transfer</code> and then check our balance:
 
     await contract.transfer("YOUR_INSTANCE_ADDRESS", 21)
     await contract.balanceOf("YOUR_PLAYER_ADDRESS")
@@ -72,7 +72,15 @@ We now have a ridiculously large balance and are ready to submit our instance.
 
 ## Level 6 - Delegation
 
-//TODO
+Here we need to claim ownership of the contract instance. To do this, we need to know [how delegation is handled in Solidity](https://medium.com/coinmonks/delegatecall-calling-another-contract-function-in-solidity-b579f804178c), particularly via the <code>delegatecall</code> function.
+
+We can see that inside the fallback function of our <code>Delegation</code> contract is a line of code that passes any data sent to it on to the <code>Delegate</code> contract via <code>delegatecall</code>. This means that we can send anything to be executed by <code>Delegate</code>, but from within the context of <code>Delegation</code>. 
+
+Yes, that's right! We can effect changes to <code>Delegation</code>'s state from within <code>Delegate</code> :)
+
+If we input the following line into our browser console, it will trigger <code>pwn()</code> inside <code>Delegate</code> and change the owner of <code>Delegation</code> to our player address, allowing us to beat this level:
+
+    await sendTransaction({from: "YOUR_PLAYER_ADDRESS", to: "YOUR_INSTANCE_ADDRESS", data: web3.eth.abi.encodeFunctionSignature("pwn()")})
 
 ## Level 7 - Force
 
@@ -91,7 +99,7 @@ The <code>password</code> variable has been initialized with the <code>private</
 
 In this case, the password is stored in <code>slot 1</code> (<code>slot 0</code> is occupied by the variable <code>locked</code>). We can read the password from our browser console by calling:
 
-    await web3.eth.getStorageAt("YOUR_INSTANCE_ADDRESS", 1);
+    await web3.eth.getStorageAt("YOUR_INSTANCE_ADDRESS", 1)
 
 We will then need to pass the result to <code>unlock</code> in order to beat the level when we submit our instance.
 
@@ -101,7 +109,7 @@ The premise is quite simple. Whenever the contract receives more ETH than the cu
 
 First, let's check the current prize amount. We can do this by checking the contract's storage like in the previous level. The value of the prize variable is again stored at <code>slot 1</code>.
 
-    await web3.eth.getStorageAt("YOUR_INSTANCE_ADDRESS", 1);
+    await web3.eth.getStorageAt("YOUR_INSTANCE_ADDRESS", 1)
 
 Since the current prize is 1 ether, we need to send slightly more than that to this contract in order to become the king. If we initiate this transaction from a contract with no fallback function, the level will be unable to reclaim kingship as it cannot transfer the prize amount to us.
 
@@ -125,7 +133,7 @@ Once we call <code>goTo</code> from our attacker contract, our victim will call 
 
 I know what you're thinking. What in the world?? @$&%!!! I know, dear reader, because I once was where you are now. But fear not, just because we can't modify the state within the function itself doesn't mean that we can't from outside of it...
 
-I initialized a <code>bool</code> called <code>penthouseButton</code> within the <code>constructor</code> function and set it to <code>false</code>. Once we call <code>goTo</code>, the target contract will evaluate whichever floor number we've given it with our <code>isLastFloor</code> function, changing <code>penthouseButton</code> to <code>true</code> and returning <code>false</code>. When the function is called a subsequent time it will then return <code>true</code>.
+I initialized a <code>bool</code> variable called <code>penthouseButton</code> within the <code>constructor</code> function and set it to <code>false</code>. Once we call <code>goTo</code>, the target contract will evaluate whichever floor number we've given it with our <code>isLastFloor</code> function, changing <code>penthouseButton</code> to <code>true</code> and returning <code>false</code>. When the function is called a subsequent time it will then return <code>true</code>.
 
 [See the code.](https://github.com/fluffypill0w/ethernaut-solutions/blob/18d9ce865d3ba2dbfb825e1f0dc6fd475aa57fea/contracts/Level%2011%20-%20AttackElevator.sol)
 
@@ -137,7 +145,7 @@ Just like with levels 8 and 9, we can look inside the storage to find the value 
 
 Our first variable, <code>locked</code>, is a <code>bool</code> located at <code>slot0</code>. The next declared variable, <code>ID</code>, is a constant and is stored elsewhere. Since the next 3 variables together along with <code>locked</code> have a size of less than 32 bytes, they are also stored all together at <code>slot0</code>. This means that <code>data</code> is located in slots 1-3. Since our target contract tells us we need the information store at <code>data[2]</code>, we know we need to look into <code>slot3</code>:
 
-    await web3.eth.getStorageAt("YOUR_INSTANCE_ADDRESS", 3);
+    await web3.eth.getStorageAt("YOUR_INSTANCE_ADDRESS", 3)
 
 Since this call returns a 32-byte value, we will need to [convert it to 16 bytes]((https://www.tutorialspoint.com/solidity/solidity_conversions.htm)) and pass this new value to the target contract as our key. In this case we can just use the first half of our 32 bytes.
 
@@ -161,7 +169,11 @@ Since this call returns a 32-byte value, we will need to [convert it to 16 bytes
 
 ## Level 17 - Recovery
 
-//TODO
+Following the path of money around the internet is somewhat of a specialty of mine. For this level we'll need to fire up [Etherscan](https://rinkeby.etherscan.io/) in order to find the lost contract. Once we have the contract's address, it's quite simple to retrieve the remaining ether thanks to the contract's handy <code>destroy</code> function.
+
+To find the lost address, look up your instance address in Etherscan and click on "Internal Txns". You'll see two contract creation events. We want the most recent one which is located at the top. Click on the "Contract Creation" hyperlink for that event and you'll find the address you're looking for. 
+
+[See the code.](https://github.com/fluffypill0w/ethernaut-solutions/blob/66819070ddda945684f07ddff07f826e2588cd41/contracts/Level%2017%20-%20AttackRecovery.sol)
 
 ## Level 18 - MagicNumber
 
