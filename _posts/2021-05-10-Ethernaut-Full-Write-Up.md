@@ -165,7 +165,7 @@ Finally, for the third modifier we have to create a key that we will pass to <co
     2. uint32(_gateKey) has to be different from uint64(_gateKey)
     3. uint32(_gateKey) has to be equal to uint16(tx.origin)
 
-To start, let's take the last 8 bytes of our player address (tx.origin) and then add a [bit mask](https://stackoverflow.com/questions/10493411/what-is-bit-masking#10493604) to that value to pad it with zeroes: 
+To start, let's take the last 8 bytes of our player address (tx.origin) and then add a [mask](https://stackoverflow.com/questions/10493411/what-is-bit-masking#10493604) to that value to pad it with zeroes: 
 
     _gateKey = bytes8(tx.origin) & 0x000000000000FFFF
 
@@ -226,7 +226,7 @@ Let's put our opcodes together. First we need to store our value <code>42</code>
     6000    // p: push1 0x80 (position = slot(0) == 0x00)
     f3      // return (returns s, p)
 
-Our 10 opcode payload is the bytecode sequence 602a60005260206000f3. Now we need to pass it to our instance in order to beat the level. So how do we do that?
+Our 10 opcode payload is the bytecode sequence <code>602a60005260206000f3</code>. Now we need to pass it to our instance in order to beat the level. So how do we do that?
 
 We're going to need to add some initialization opcodes to our sequence in order to copy our runtime opcodes (our payload) to memory and return them to the EVM:. Note that these opcodes take up 12 bytes, and since they are stored first our runtime opcodes are located in memory beginning at slot(12):
 
@@ -239,7 +239,7 @@ We're going to need to add some initialization opcodes to our sequence in order 
     6000    // p: push1 0x00 (access memory index 0)
     f3      // return (returns s, p to EVM)
 
-Our final bytcode sequence is thus 600a600c600039600a6000f3602a60005260206000f3.
+Our final bytcode sequence is thus <code>600a600c600039600a6000f3602a60005260206000f3</code>.
 
 Alright, now that we have our bytecode we need to create the contract whose address <code>_solver</code> will be the argument that we need to pass to pur instance's <code>setSolver</code> function in order to beat this level. 
 
