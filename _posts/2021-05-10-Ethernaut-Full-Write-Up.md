@@ -95,7 +95,7 @@ address is [made to self-destruct](https://solidity-by-example.org/hacks/self-de
 
 We need to find the password and submit it to the <code>unlock</code> function in order to beat this level. 
 
-The <code>password</code> variable has been initialized with the <code>private</code> modifier. However, this does not mean that the variable is, in fact, [a secret](https://docs.soliditylang.org/en/v0.8.4/security-considerations.html?highlight=private%20variables). Anyone can read any smart contract's storage as it is on-chain.
+The <code>password</code> variable has been initialized with the <code>private</code> modifier. However, this does not mean that the variable is, in fact, [a secret](https://docs.soliditylang.org/en/v0.8.4/security-considerations.html?highlight=private%20variables). Anyone can read any smart contract's storage as it is located on-chain.
 
 In this case, the password is stored in <code>slot 1</code> (<code>slot 0</code> is occupied by the variable <code>locked</code>). We can read the password from our browser console by calling:
 
@@ -133,7 +133,7 @@ Once we call <code>goTo</code> from our attacker contract, our victim will call 
 
 I know what you're thinking. What in the world?? @$&%!!! I know, dear reader, because I once was where you are now. But fear not, just because we can't modify the state within the function itself doesn't mean that we can't from outside of it...
 
-I initialized a <code>bool</code> variable called <code>penthouseButton</code> within the <code>constructor</code> function and set it to <code>false</code>. Once we call <code>goTo</code>, the target contract will evaluate whichever floor number we've given it with our <code>isLastFloor</code> function, changing <code>penthouseButton</code> to <code>true</code> and returning <code>false</code>. When the function is called a subsequent time it will then return <code>true</code>.
+I initialized a <code>bool</code> variable called <code>penthouseButton</code> within the <code>constructor</code> function with the value <code>false</code>. Once we call <code>goTo</code>, the target contract will evaluate whichever floor number we've given it with our <code>isLastFloor</code> function, changing <code>penthouseButton</code> to <code>true</code> and returning <code>false</code>. When the function is called a subsequent time it will then return <code>true</code>.
 
 [See the code.](https://github.com/fluffypill0w/ethernaut-solutions/blob/18d9ce865d3ba2dbfb825e1f0dc6fd475aa57fea/contracts/Level%2011%20-%20AttackElevator.sol)
 
@@ -177,7 +177,13 @@ This satisfies the first and last conditions for our key. However, it doesn't me
 
 ## Level 14 - Gatekeeper Two
 
-//TODO
+Just like the last level, we'll need to call this contract's <code>enter</code> function in such a way that we pass the conditions set by its three modifiers.
+
+The first modifier is the same as in the last level. The second modifier is different now, but still tricky. In order for <code>extcodesize == 0</code>, we'll need to place all of our contract's logic inside of its <code>constructor</code> function.
+
+The third modifier requires us to remember our [bitwise operators](https://www.tutorialspoint.com/solidity/solidity_operators.htm), specifically NOT and [XOR](https://www.pcmag.com/encyclopedia/term/xor) (For even more details about the beauty of XOR, check [this](https://accu.org/journals/overload/20/109/lewin_1915/) out.)
+
+[See the code.](https://github.com/fluffypill0w/ethernaut-solutions/blob/5a9c8a13bc283d4e8c6095c756110eeb088848b9/contracts/Level%2014%20-%20AttackGatekeeperTwo.sol)
 
 ## Level 15 - Naught Coin 
 
@@ -228,7 +234,7 @@ Let's put our opcodes together. First we need to store our value <code>42</code>
 
 Our 10 opcode payload is the bytecode sequence <code>602a60005260206000f3</code>. Now we need to pass it to our instance in order to beat the level. So how do we do that?
 
-We're going to need to add some initialization opcodes to our sequence in order to copy our runtime opcodes (our payload) to memory and return them to the EVM:. Note that these opcodes take up 12 bytes, and since they are stored first our runtime opcodes are located in memory beginning at slot(12):
+We're going to need to add some initialization opcodes to our sequence in order to copy our runtime opcodes (our payload) to memory and return them to the EVM. Note that these opcodes take up 12 bytes, and since they are stored first our runtime opcodes are located in memory beginning at slot(12):
 
     600a    // s: push1 0x0a (size of our payload == runtime opcode length = 10 bytes)
     600c    // f: push1 0x0c (runtime opcodes begin from slot(12))
@@ -249,7 +255,17 @@ Let's do this with some [inline assembly](https://docs.soliditylang.org/en/v0.4.
 
 ## Level 19 - Alien Codex
 
-//TODO
+In order to claim ownership of this level we'll need to remember what we learned about data storage in level 12 (I also found [this part of the Solidity documentation](https://docs.soliditylang.org/en/v0.4.20/miscellaneous.html#layout-of-state-variables-in-storage) to be very helpful for this level).
+
+We can see that the first variable of the contract is of a static size and will thus occupy a single memory slot. However, this contract inherits from <code>Ownable</code>, so the first slot will first be assigned to <code>Ownable</code>'s static variable <code>owner</code>. Both of these variables together are less than 32 bytes, though, so still only <code>slot0</code> is reserved in storage.
+
+Now we need to understand [how storage is assigned for dynamically-sized variables](https://docs.soliditylang.org/en/v0.6.8/internals/layout_in_storage.html#mappings-and-dynamic-arrays) like our <code>codex</code> array. Once we know that <code>codex</code> is located beginning at <code>keccak256(1)</code> and from there sequentially in memory for the length of the array, we're ready to crack this challenge.
+
+We can make <code>codex</code> underflow by calling <code>retract</code>. First, though, we'll need to call <code>make_contact</code> because of the <code>contacted</code> modifier of this function. 
+
+Now we can write to <code>slot0</code> where our <code>owner</code> variable is stored, setting its value to our player address. In order to do this we'll need to pass two parameters to the <code>revise</code> method: the slot number of <code>codex</code> which writes to <code>slot0</code> and our player address converted to 32 bytes.
+
+[See the code](https://github.com/fluffypill0w/ethernaut-solutions/blob/cfd9b77fdf9ec592b74b7f1c885f5f93ac36aa97/contracts/Level%2019%20-%20AttackAlienCodex.sol)
 
 ## Level 20 - Denial
 
