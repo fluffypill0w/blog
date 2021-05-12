@@ -153,7 +153,27 @@ Since this call returns a 32-byte value, we will need to [convert it to 16 bytes
 
 ## Level 13 - Gatekeeper One 
 
-//TODO
+This level is a three-in-one challenge. We need to call <code>enter</code> in such a way that we pass the three modifier's requirements. 
+
+The first modifier is easy to pass, all we need to do is send our function call from an attack contract.
+
+The second modifier is trickier. We'll need to specify a gas amount with our function call such that the remaining gas after we've reached this point in the stack execution is a multiple of 8191. To do this, we'll need to have a look in the [Remix debugger](https://remix-ide.readthedocs.io/en/latest/debugger.html). Make sure to have the right compiler version for the contract.
+
+Finally, for the third modifier we have to create a key that we will pass to <code>enter</code>. It's helpful to remember what we learned about [conversions](https://www.tutorialspoint.com/solidity/solidity_conversions.htm) in the last level. Our key needs to satisfy three conditions:
+
+    1. uint32(_gateKey) has to be equal to uint16(_gateKey)
+    2. uint32(_gateKey) has to be different from uint64(_gateKey)
+    3. uint32(_gateKey) has to be equal to uint16(tx.origin)
+
+To start, let's take the last 8 bytes of our player address (tx.origin) and then add a [bit mask](https://stackoverflow.com/questions/10493411/what-is-bit-masking#10493604) to that value to pad it with zeroes: 
+
+    _gateKey = bytes8(tx.origin) & 0x000000000000FFFF
+
+This satisfies the first and last conditions for our key. However, it doesn't meet the second condition as a truncated <code>_gateKey</code> would still return the same value. For this condition to be met we need to change any of the first 8 characters (half of the key value), which we can do by modifying our mask:
+
+    _gateKey = bytes8(tx.origin) & 0xF00000000000FFFF
+
+[See the code.](https://github.com/fluffypill0w/ethernaut-solutions/blob/d0cea57c32a4ab3457c2b9a80139fd29403fb531/contracts/Level%2013%20-%20AttackGatekeeperOne.sol)
 
 ## Level 14 - Gatekeeper Two
 
@@ -161,11 +181,24 @@ Since this call returns a 32-byte value, we will need to [convert it to 16 bytes
 
 ## Level 15 - Naught Coin 
 
-//TODO
+To beat this level we'll have to dig deeper as there is no vulnerability in the code contract itself (at least as far as I could see). 
+
+We're given a balance of an ERC20 token called NaughtCoin and told that to beat this level we have to transfer it to another account. The catch is that the <code>transfer</code> function inside the contract has a modifier that will keep us from calling the function for 10 years.
+
+What stuck out to me was the [use of the keyword "override"]((https://ethereum.stackexchange.com/questions/78572/what-are-the-virtual-and-override-keywords-in-solidity)). If this function was already defined in a contract from which this one inherits, maybe the base contract also contains another [transfer method](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/86694813099ba566f227b7d7a46c950baa364b64/contracts/token/ERC20/ERC20.sol#L148) we can use that is not subject to the Naught Coin contract's timelock modifier:
+
+    await contract.approve("YOUR_PLAYER_ADDRESS",  "1000000000000000000000000")
+    await contract.transferFrom("YOUR_PLAYER_ADDRESS", "SOME_RANDOM_PAYABLE_ADDRESS", "1000000000000000000000000")
 
 ## Level 16 - Preservation
 
-//TODO
+For this level it is helpful to remember what we learned in level 6 about [Solidity delegation](https://medium.com/coinmonks/delegatecall-calling-another-contract-function-in-solidity-b579f804178c).
+
+We can create and deploy a malicious library that contains a <code>setFirstTime</code> function that sets the value of <code>owner</code> to whatever we address we pass to it. We need to make sure its storage layout will be exactly the same as our instance contract since we will exploit the instance's use of <code>delegatecall</code> to change its state storage from within the execution of our library contract. 
+
+Then from our attack contract we can call <code>setFirstTime</code> and pass to it the address of our malicious library contract in order to change the library address. After that we'll want to call <code>setFirstTime</code> again, but this time passing in our player address in order to become the owner and beat the level.
+
+[See the code.](https://github.com/fluffypill0w/ethernaut-solutions/blob/d0cea57c32a4ab3457c2b9a80139fd29403fb531/contracts/Level%2016%20-%20AttackPreservation.sol)
 
 ## Level 17 - Recovery
 
@@ -177,7 +210,42 @@ To find the lost address, look up your instance address in Etherscan and click o
 
 ## Level 18 - MagicNumber
 
-//TODO
+If you didn't dig deep into [opcodes](https://medium.com/@blockchain101/solidity-bytecode-and-opcode-basics-672e9b1a88c2) in while poking around the debugger in level 13 like I did, now is your chance :O
+
+We need to create a contract that cthat returns "42"... but the catch is that we have to do it with a maximum of 10 opcodes.
+
+I referred to [this excellent article](https://medium.com/coinmonks/ethernaut-lvl-19-magicnumber-walkthrough-how-to-deploy-contracts-using-raw-assembly-opcodes-c50edb0f71a2) while writing my attack contract and I suggest that you do so as well.
+
+Let's put our opcodes together. First we need to store our value <code>42</code> somewhere in memory. We'll need to push both the value and the memory slot where we want to put it and then return our value:
+
+    602a    // v: push1 0x2a (value = 42 == 0x2a)
+    6000    // p: push1 0x00 (position = slot(0) in memory == 0x00)
+    52      // mstore (stores arguments v, p)
+
+    6020    // s: push1 0x20 (size of our value = 32 bytes)
+    6000    // p: push1 0x80 (position = slot(0) == 0x00)
+    f3      // return (returns s, p)
+
+Our 10 opcode payload is the bytecode sequence 602a60005260206000f3. Now we need to pass it to our instance in order to beat the level. So how do we do that?
+
+We're going to need to add some initialization opcodes to our sequence in order to copy our runtime opcodes (our payload) to memory and return them to the EVM:. Note that these opcodes take up 12 bytes, and since they are stored first our runtime opcodes are located in memory beginning at slot(12):
+
+    600a    // s: push1 0x0a (size of our payload == runtime opcode length = 10 bytes)
+    600c    // f: push1 0x0c (runtime opcodes begin from slot(12))
+    6000    // t: push1 0x00 (destination memory index 0)
+    39      // CODECOPY (copies arguments s, f, t)
+
+    600a    // s: push1 0x0a (runtime opcode length = 10 bytes)
+    6000    // p: push1 0x00 (access memory index 0)
+    f3      // return (returns s, p to EVM)
+
+Our final bytcode sequence is thus 600a600c600039600a6000f3602a60005260206000f3.
+
+Alright, now that we have our bytecode we need to create the contract whose address <code>_solver</code> will be the argument that we need to pass to pur instance's <code>setSolver</code> function in order to beat this level. 
+
+Let's do this with some [inline assembly](https://docs.soliditylang.org/en/v0.4.24/assembly.html) similar to what we'll see level 21. We can use the <code>create2</code> opcode with to create the contract. Check [this](https://solidity-by-example.org/app/create2/) out for reference.
+
+[See the code.](https://github.com/fluffypill0w/ethernaut-solutions/blob/a622272976e1e73ca470f2d7e20248ff147eabdd/contracts/Level%2018%20-%20AttackMagicNumber.sol)
 
 ## Level 19 - Alien Codex
 
