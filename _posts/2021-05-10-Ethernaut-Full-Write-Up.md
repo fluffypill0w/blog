@@ -97,7 +97,7 @@ We need to find the password and submit it to the <code>unlock</code> function i
 
 The <code>password</code> variable has been initialized with the <code>private</code> modifier. However, this does not mean that the variable is, in fact, [a secret](https://docs.soliditylang.org/en/v0.8.4/security-considerations.html?highlight=private%20variables). Anyone can read any smart contract's storage as it is located on-chain.
 
-In this case, the password is stored in <code>slot 1</code> (<code>slot 0</code> is occupied by the variable <code>locked</code>). We can read the password from our browser console by calling:
+In this case, the password is stored in <code>slot(1)</code> (<code>slot(0)</code> is occupied by the variable <code>locked</code>). We can read the password from our browser console by calling:
 
     await web3.eth.getStorageAt("YOUR_INSTANCE_ADDRESS", 1)
 
@@ -107,7 +107,7 @@ We will then need to pass the result to <code>unlock</code> in order to beat the
 
 The premise is quite simple. Whenever the contract receives more ETH than the current prize, it send the previous king the new prize amount and the sender becomes the new king. 
 
-First, let's check the current prize amount. We can do this by checking the contract's storage like in the previous level. The value of the prize variable is again stored at <code>slot 1</code>.
+First, let's check the current prize amount. We can do this by checking the contract's storage like in the previous level. The value of the prize variable is again stored at <code>slot(1)</code>.
 
     await web3.eth.getStorageAt("YOUR_INSTANCE_ADDRESS", 1)
 
@@ -143,7 +143,7 @@ We need to unlock this contract to beat this level. Looking at the <code>unlock<
 
 Just like with levels 8 and 9, we can look inside the storage to find the value of <code>data</code>. We need to know about [data storage optimization in Solidity](https://medium.com/coinmonks/gas-optimization-in-solidity-part-i-variables-9d5775e43dde) in order to know in which slots to look for our value.
 
-Our first variable, <code>locked</code>, is a <code>bool</code> located at <code>slot0</code>. The next declared variable, <code>ID</code>, is a constant and is stored elsewhere. Since the next 3 variables together along with <code>locked</code> have a size of less than 32 bytes, they are also stored all together at <code>slot0</code>. This means that <code>data</code> is located in slots 1-3. Since our target contract tells us we need the information store at <code>data[2]</code>, we know we need to look into <code>slot3</code>:
+Our first variable, <code>locked</code>, is a <code>bool</code> located at <code>slot(0)</code>. The next declared variable, <code>ID</code>, is a constant and is stored elsewhere. Since the next 3 variables together along with <code>locked</code> have a size of less than 32 bytes, they are also stored all together at <code>slot(0)</code>. This means that <code>data</code> is located in slots 1-3. Since our target contract tells us we need the information store at <code>data[2]</code>, we know we need to look into <code>slot(3)</code>:
 
     await web3.eth.getStorageAt("YOUR_INSTANCE_ADDRESS", 3)
 
@@ -234,7 +234,7 @@ Let's put our opcodes together. First we need to store our value <code>42</code>
 
 Our 10 opcode payload is the bytecode sequence <code>602a60005260206000f3</code>. Now we need to pass it to our instance in order to beat the level. So how do we do that?
 
-We're going to need to add some initialization opcodes to our sequence in order to copy our runtime opcodes (our payload) to memory and return them to the EVM. Note that these opcodes take up 12 bytes, and since they are stored first our runtime opcodes are located in memory beginning at slot(12):
+We're going to need to add some initialization opcodes to our sequence in order to copy our runtime opcodes (our payload) to memory and return them to the EVM. Note that these opcodes take up 12 bytes, and since they are stored first our runtime opcodes are located in memory beginning at <code>slot(12)</code>:
 
     600a    // s: push1 0x0a (size of our payload == runtime opcode length = 10 bytes)
     600c    // f: push1 0x0c (runtime opcodes begin from slot(12))
@@ -245,11 +245,11 @@ We're going to need to add some initialization opcodes to our sequence in order 
     6000    // p: push1 0x00 (access memory index 0)
     f3      // return (returns s, p to EVM)
 
-Our final bytcode sequence is thus <code>600a600c600039600a6000f3602a60005260206000f3</code>.
+Our final bytecode sequence is thus <code>600a600c600039600a6000f3602a60005260206000f3</code>.
 
 Alright, now that we have our bytecode we need to create the contract whose address <code>_solver</code> will be the argument that we need to pass to pur instance's <code>setSolver</code> function in order to beat this level. 
 
-Let's do this with some [inline assembly](https://docs.soliditylang.org/en/v0.4.24/assembly.html) similar to what we'll see level 21. We can use the <code>create2</code> opcode with to create the contract. Check [this](https://solidity-by-example.org/app/create2/) out for reference.
+Let's do this with some [inline assembly](https://docs.soliditylang.org/en/v0.4.24/assembly.html) similar to what we'll see level 21. We can use the <code>create2</code> opcode to create the contract. Check [this](https://solidity-by-example.org/app/create2/) out for reference.
 
 [See the code.](https://github.com/fluffypill0w/ethernaut-solutions/blob/a622272976e1e73ca470f2d7e20248ff147eabdd/contracts/Level%2018%20-%20AttackMagicNumber.sol)
 
@@ -257,13 +257,13 @@ Let's do this with some [inline assembly](https://docs.soliditylang.org/en/v0.4.
 
 In order to claim ownership of this level we'll need to remember what we learned about data storage in level 12 (I also found [this part of the Solidity documentation](https://docs.soliditylang.org/en/v0.4.20/miscellaneous.html#layout-of-state-variables-in-storage) to be very helpful for this level).
 
-We can see that the first variable of the contract is of a static size and will thus occupy a single memory slot. However, this contract inherits from <code>Ownable</code>, so the first slot will first be assigned to <code>Ownable</code>'s static variable <code>owner</code>. Both of these variables together are less than 32 bytes, though, so still only <code>slot0</code> is reserved in storage.
+We can see that the first variable of the contract is of a static size and will thus occupy a single memory slot. However, this contract inherits from <code>Ownable</code>, so the first slot will first be assigned to <code>Ownable</code>'s static variable <code>owner</code>. Both of these variables together are less than 32 bytes, though, so still only <code>slot(0)</code> is reserved in storage.
 
 Now we need to understand [how storage is assigned for dynamically-sized variables](https://docs.soliditylang.org/en/v0.6.8/internals/layout_in_storage.html#mappings-and-dynamic-arrays) like our <code>codex</code> array. Once we know that <code>codex</code> is located beginning at <code>keccak256(1)</code> and from there sequentially in memory for the length of the array, we're ready to crack this challenge.
 
 We can make <code>codex</code> underflow by calling <code>retract</code>. First, though, we'll need to call <code>make_contact</code> because of the <code>contacted</code> modifier of this function. 
 
-Now we can write to <code>slot0</code> where our <code>owner</code> variable is stored, setting its value to our player address. In order to do this we'll need to pass two parameters to the <code>revise</code> method: the slot number of <code>codex</code> which writes to <code>slot0</code> and our player address converted to 32 bytes.
+Now we can write to <code>slot(0)</code> where our <code>owner</code> variable is stored, setting its value to our player address. In order to do this we'll need to pass two parameters to the <code>revise</code> method: the slot number of <code>codex</code> which writes to <code>slot(0)</code> and our player address converted to 32 bytes.
 
 [See the code](https://github.com/fluffypill0w/ethernaut-solutions/blob/cfd9b77fdf9ec592b74b7f1c885f5f93ac36aa97/contracts/Level%2019%20-%20AttackAlienCodex.sol)
 
@@ -279,7 +279,7 @@ Becoming a partner is straightforward enough, we just have to call <code>setWith
 
 Because this contract uses a fixed amount of gas, it may soon become completely impossible to beat. I was still able to successfully pass this level thanks to some [hard-working soul's Yul code on pastebin](https://pastebin.com/4G4xuUDn).
 
-[Yul is an intermediate language](https://docs.soliditylang.org/en/latest/yul.html) that can be used for inline-assembly inside of a Solidity file, optimizing a program and saving a whole lot of gas. So, to whoever wrote that pastebin file, many thanks kind human(?) <3
+[Yul is an intermediate language](https://docs.soliditylang.org/en/latest/yul.html) that can be used for inline assembly inside of a Solidity file, optimizing a program and saving a whole lot of gas. So, to whoever wrote that pastebin file, many thanks kind human(?) <3
 
 When we call our target contract's <code>buy</code> function it will in turn call into our <code>price</code> function. Similar to level 11, we need to make it so our function can return two different prices without modifying the value of the <code>price</code> variable.
 
