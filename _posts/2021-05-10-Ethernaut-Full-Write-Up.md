@@ -6,15 +6,12 @@ categories: CTF Ethernaut
 ---
 
 It's been a while since my first post on the [Ethernaut challenge](https://ethernaut.openzeppelin.com/), but now everyone's favorite pillow is back with a 
-full walkthrough of each level. You can find the [code for all of my exploit contracts](https://github.com/fluffypill0w/ethernaut-solutions/tree/main/contracts), and an [explanation of 
+full walk-through of each level. You can find the [code for all of my exploit contracts](https://github.com/fluffypill0w/ethernaut-solutions/tree/main/contracts), and an [explanation of 
 Level 0 here](https://fluffypill0w.github.io/blog/ctf/ethernaut/2021/01/11/Ethernaut-Level-0.html).
 
 ## Level 1 - Fallback
 
-This level requires two things: 
-
-    1. Become the owner of your instance.
-    2. Drain the balance of the contract. 
+This level requires us to become the owner of our instance and then drain the balance of the contract. 
 
 When we look at the code, we can see that the owner is set to the address of whoever deployed the contract as part of the <code>constructor</code> function. So how do we become the owner? 
 
@@ -48,7 +45,7 @@ We can copy the same logic the contract uses to calculate <code>side</code> and 
 
 Once again the goal of the level is to gain ownership of the contract. In order to do this, we need to [understand the difference](https://ethereum.stackexchange.com/questions/1891/whats-the-difference-between-msg-sender-and-tx-origin) between <code>tx.origin</code> and <code>msg.sender</code>.
 
-In order to successfully call <code>changeOwner</code> and pass our wallet address as the new owner, the function call must originate from a different address than <code>msg.sender</code>. A good way to do this is to deploy a new contract to attack our level instance. 
+In order to successfully call <code>changeOwner</code> and pass our player address as the new owner, the function call must originate from a different address than <code>msg.sender</code>. A good way to do this is to deploy a new contract to attack our level instance. 
 
 [See the code.](https://github.com/fluffypill0w/ethernaut-solutions/blob/18d9ce865d3ba2dbfb825e1f0dc6fd475aa57fea/contracts/Level%2004%20-%20AttackTelephone.sol)
 
@@ -119,7 +116,7 @@ Since the current prize is 1 ether, we need to send slightly more than that to t
 
 The goal here is to drain this contract of its funds. There's a problem-- we can only withdraw what we've put into the contract via <code>donate</code>, right?
 
-Let's look at the logic of the <code>withdraw</code> function. The contract first checks that the amount we're withdrawing is equal to or less than our balance. Then it sends the funds back to us via our fallback function before finally adjusted our balance to reflect the withdrawal. 
+Let's look at the logic of the <code>withdraw</code> function. The contract first checks that the amount we're withdrawing is <= our balance. Then it sends the funds back to us via our fallback function before finally adjusting our balance to reflect the withdrawal. 
 
 The vulnerability lies in the fact the our fallback function is triggered before our balance is adjusted. We can [re-enter the contract by placing some malicious code in our fallback function](https://quantstamp.com/blog/what-is-a-re-entrancy-attack) that will repeatedly withdraw funds from the contract until the contract's balance is zero.
 
@@ -129,9 +126,9 @@ The vulnerability lies in the fact the our fallback function is triggered before
 
 This level was a bit tricky for me. 
 
-Once we call <code>goTo</code> from our attacker contract, our victim will call <code>isLastFloor</code> in our contract to evaluate if the floor number we've pushed to it with <code>goTo</code> first is not the top floor and then subsequently is the top floor. All of this [without us being able to modify the state](https://www.tutorialspoint.com/solidity/solidity_view_functions.htm), since <code>isLastFloor</code> has a <code>view</code> modifier.
+Once we call <code>goTo</code> from our attacker contract, our instance contract will call <code>isLastFloor</code> in our contract to first evaluate if the floor number we've pushed to it with <code>goTo</code> is not the top floor and then subsequently if it is the top floor. All of this [without us being able to modify the state](https://www.tutorialspoint.com/solidity/solidity_view_functions.htm), since <code>isLastFloor</code> has a <code>view</code> modifier.
 
-I know what you're thinking. What in the world?? @$&%!!! I know, dear reader, because I once was where you are now. But fear not, just because we can't modify the state within the function itself doesn't mean that we can't from outside of it...
+What in the world?? @$&%!!! I know what you're thinking, dear reader, I've been there. But fear not, just because we can't modify the state within the function itself doesn't mean that we can't from outside of it...
 
 I initialized a <code>bool</code> variable called <code>penthouseButton</code> within the <code>constructor</code> function with the value <code>false</code>. Once we call <code>goTo</code>, the target contract will evaluate whichever floor number we've given it with our <code>isLastFloor</code> function, changing <code>penthouseButton</code> to <code>true</code> and returning <code>false</code>. When the function is called a subsequent time it will then return <code>true</code>.
 
@@ -143,7 +140,7 @@ We need to unlock this contract to beat this level. Looking at the <code>unlock<
 
 Just like with levels 8 and 9, we can look inside the storage to find the value of <code>data</code>. We need to know about [data storage optimization in Solidity](https://medium.com/coinmonks/gas-optimization-in-solidity-part-i-variables-9d5775e43dde) in order to know in which slots to look for our value.
 
-Our first variable, <code>locked</code>, is a <code>bool</code> located at <code>slot(0)</code>. The next declared variable, <code>ID</code>, is a constant and is stored elsewhere. Since the next 3 variables together along with <code>locked</code> have a size of less than 32 bytes, they are also stored all together at <code>slot(0)</code>. This means that <code>data</code> is located in slots 1-3. Since our target contract tells us we need the information store at <code>data[2]</code>, we know we need to look into <code>slot(3)</code>:
+Our first variable, <code>locked</code>, is a <code>bool</code> located at <code>slot(0)</code>. The next declared variable, <code>ID</code>, is a [constant and is stored elsewhere](https://docs.soliditylang.org/en/latest/contracts.html#constants). Since the next three variables together along with <code>locked</code> have a size of less than 32 bytes, they are also stored all together at <code>slot(0)</code>. This means that <code>data</code> is located in slots 1-3. Since our target contract tells us we need the information store at <code>data[2]</code>, we know we need to look into <code>slot(3)</code>:
 
     await web3.eth.getStorageAt("YOUR_INSTANCE_ADDRESS", 3)
 
@@ -289,4 +286,35 @@ To do this, we can use the <code>isSold</code> boolean of our target contract to
 
 ## Level 22 - Dex
 
-//TODO
+My solution to this level was not very elegant and I'm working on translating it over to code. I'll link my efforts [here](https://github.com/fluffypill0w/ethernaut-solutions/blob/7e49dc7e6f659c311d1e94450f0c6e63d89b5810/contracts/Level%2022%20WIP%20-%20AttackDex.sol); perhaps you have some suggestions for me.
+
+Anyway, we'll need to first check out our level address in Etherscan and click the drop-down menu where it says "Token". We'll find options for "Token 1" and "Token 2". Click on both of these and save the addresses.
+
+Next, let's approve our contract instance to spend all of our current balance of <code>Token 1</code>:
+
+    await contract.approve("YOUR_INSTANCE_ADDRESS", 10)
+
+Now let's swap all of our <code>Token 1</code> balance for 10 TKN2:
+
+    await contract.swap("TKN1_ADDRESS", "TKN2_ADDRESS", 10)
+
+We now have 0 TKN1 and 20 TKN2. The price of TKN2 is now higher than that of TKN1 because we've [altered the price ratio of the liquidity pool of our AMM-DEX](https://medium.com/whitebit/getting-to-know-amms-1b68561d8e08) for this currency pair. Let's test this by comparing the results of the following:
+
+    await contract.get_swap_price("TKN2_ADDRESS", "TKN1_ADDRESS", 20)
+    await contract.get_swap_price("TKN1_ADDRESS", "TKN2_ADDRESS", 20)
+
+We see that we can now trade our whole balance of 20 TKN2 for 24 TKN1, whereas someone who wanted to trade 20 TKN1 would only receive 16 TKN2 from the contract in exchange. 
+
+So how do we get the DEX contract's balance of one of these tokens to zero and thus beat this challenge? 
+
+You guessed it! We just need to keep swapping. Repeat the following, swapping between tokens until you find you get a swap price >= 100 for either token:
+
+    await contract.approve("YOUR_INSTANCE_ADDRESS", MAX_BALANCE_TO_SWAP) //For the first time, the value is 20
+    await contract.get_swap_price("TKN1_ADDRESS", "TKN2_ADDRESS", BALANCE_TKN1) //Result is the next value to approve && swap
+    await contract.swap("TKN2_ADDRESS", "TKN1_ADDRESS", MAX_BALANCE_TO_SWAP) 
+
+If the swap price is > 100, check the contract's balance to see how many tokens it has left of the [base currency](https://www.investopedia.com/terms/b/basecurrency.asp):
+
+    await contract.balanceOf("TOKEN_ADDRESS_BASE_CURRENCY", "YOUR_INSTANCE_ADDRESS")
+
+Then play around with the swap price function to see what amount you'll need to trade in order to fully drain the funds.
