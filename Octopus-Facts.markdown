@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Octopus Facts
-permalink: /Octopus Facts/
+permalink: /Octopus-Facts/
 ---
 
 - Octopus have a [decentralized brain](https://www.psychologytoday.com/intl/blog/science-and-philosophy/202003/the-octopus-and-the-unity-consciousness), with [more than half of their neurons located within their arms](https://news.harvard.edu/gazette/story/2010/10/thinking-like-an-octopus/).
