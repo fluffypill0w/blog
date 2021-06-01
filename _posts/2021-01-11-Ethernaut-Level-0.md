@@ -24,12 +24,12 @@ Anyway, with my Eth in hand thanks to a sock puppet twitter account, I was able 
 
 The first thing I did was look at the contract’s ABI as suggested, and I noticed a function named `password`. So naturally I did what any reasonable person would do… I called the `password` method.
 
-![password function call results](_posts/blog_ethernaut00.jpg "password lvl 0")
+![password function call results](/blog_ethernaut00.jpg "password lvl 0")
 
 Now armed with what appeared to be the password, I had to figure out what to do with it. 
 
 The instructions said to call the contract’s info method, so I did that and just kept going down the rabbit hole until I found I needed to pass the password to the `authenticate` method as an argument.
 
-![pass to authenticate()]({{site.github.url}}/blog_ethernaut01.jpg "pass to authenticate")
+![pass to authenticate()](/blog_ethernaut01.jpg "pass to authenticate")
 
 My submission was a success and I could then move on to the next level.
