@@ -22,8 +22,8 @@ title: fluffypill0w
 email: fluffypill0w@protonmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   The fluffiest pillow of them all speaks to you about life, tech, and other miscellanea.
-baseurl: "/blog" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "https://fluffypill0w.me" # the base hostname & protocol for your site, e.g. http://example.com
 #twitter_username: jekyllrb
 github_username:  fluffypill0w
 permalink: /:title

@@ -15,6 +15,6 @@ I found a list of known crypto phishing domains on [the github page of the IronC
 
 After about 15 minutes of this and nothing in particular pointing to the use of this kind of modular phishing kit, I struck gold. 
 
-![URL ThumbSniper API](Images/blog_phishing.jpg "Maltego investigation results pointing to third-party thumbnail fetching service.")
+![URL ThumbSniper API]({{site.url}}/images/blog_phishing.jpg "Maltego investigation results pointing to third-party thumbnail fetching service.")
 
 This is where I ended my investigation, so of course I can’t be sure of exactly what is going on behind the scenes. However, the fact that there appears to be an API call made to a service that fetches website thumbnails suggests to me that this particular page may indeed make use of this type of phishing kit.
