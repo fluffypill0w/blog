@@ -4,9 +4,7 @@ title: About
 permalink: /about/
 ---
 
-Hi there, I'm Megan. I analyze and experiment with tech, particularly blockchains and all things security-related. I live somewhere between Barcelona and a mess of (human) languages in my head, and I love to witness the terrible beauty of this life and try my best to reflect it back in all I do.
-
-
+Hi there, I'm Megan. I analyze and experiment with tech, particularly blockchains and all things security-related. I live somewhere between Barcelona and a mess of (human) languages in my head. I love to witness the terrible beauty of this life and try my best to reflect it back in everything I do.
 
 My favorite animal is the octopus. Here are some octopus facts for you:
 
