@@ -64,6 +64,8 @@ Now comes the bit shifting. Because we've got an 8-bit sequence of which we're o
 
 No more need to loop through mod 2 to the power of some increasing index! We've sort of frontloaded the cyclic nature of binary representation with this approach, which I think is beautiful.
 
+Obviously this can't easily be done with Python because ints are not fixed-size in Python (and they're also huge so like good luck with that lookup table even if you do manage somehow). If you feel like looking at the concept of a plan of this algorithm though, feeling free to [try this out](https://gist.github.com/fluffypill0w/1a2b6adf6f5ffcce4c75a243e5b13159).
+
 Now, as for the applications...uh, some people are really into making efficient [chess games with this technique](https://www.chessprogramming.org/BitScan#Bitscan_by_Modulo). Apparently it's a whole thing. It can also be used to more efficiently [brute-force some types of locks](https://en.wikipedia.org/wiki/De_Bruijn_sequence#Brute-force_attacks_on_locks).
 
 I enjoyed thinking through this problem a lot after that interview, so I consider it a success despite everything. Also, I've started doing those [coding puzzle challenges](https://leetcode.com/) that help to prepare for this type of interview, so hopefully next time will be better. I found an even nerdier, math-ier version of this: [Project Euler](https://projecteuler.net/). They have a really nice Discord community as well.
