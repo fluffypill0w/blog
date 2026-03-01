@@ -52,7 +52,7 @@ Now I asked myself what I supposed the interviewer would have asked me had I not
 
 The idea is this: do the bitwise AND operation on your integer to isolate the lowest 1-bit, then multiply by a precomputed de Bruijn constant. This new value needs to then be right-shifted by some value (we'll get to that in a minute) in order to be used as the key to a precomputed lookup table containing the value of the index of the AND-ed bit.
 
-The de Bruijn constant we want is just some particular de Bruijn sequence for length-*n* string given a size-*k* alphabet. It can be any of the possible sequences, it doesn't matter. Since we're doing binary computer stuff, our alphabet size *k = 2* won't ever change, only the length-*n* string. (The only other thing to note is that our lookup table will change if our constant does, despite being the same size as another de Bruijn sequence.)
+The de Bruijn constant we want is just some particular de Bruijn sequence of *k^n* length with *k* number of length-*n* substrings given a size-*k* alphabet. It can be any of the possible sequences, it doesn't matter. Since we're doing binary computer stuff, our alphabet size *k = 2* won't ever change, only the length-*n* string. (The only other thing to note is that our lookup table will change if our constant does, despite being the same size as another de Bruijn sequence.)
 
 Now for the really interesting part! The length-*n* we want for our de Bruijn constant is the power of 2 that gives us the size of our integer. 
 
