@@ -11,7 +11,7 @@ Your girl was asked how she would chop the trailing zeros from a binary number i
 
 Now, as some of you may know, I'm the type of person to forget how to operate a microwave the second my boss comes and watches me work (true story, I do not miss working in restaurants). So far in my life I've been lucky enough to have take-home technical tests for interviews and no one had to watch me do dumb things for ten minutes straight before I got the hang of it. You can imagine, dear reader, the panicky deer-in-headlights stare I probably gave the interviewer as my head went immediately empty upon being asked to perform.
 
-Perhaps because I've been spending all my time with cyclic groups these days, I immediately thought about chopping based on modulo 2 division. Before I could stutter anything about indexes, however, my face was on fire and I realized I couldn't continue with the interview for the shame 😭.
+Perhaps because I've been spending all my time with cyclic groups these days, I immediately thought about chopping based on modulo 2 division. Before I could stutter anything about indices, however, my face was on fire and I realized I couldn't continue with the interview for the shame 😭.
 
 I kept thinking about the problem after that whole mess was over. It seemed simple enough, and I did think my initial idea would work. Turns out, it does:
 
