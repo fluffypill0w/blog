@@ -44,7 +44,9 @@ def fancy_bit_flipping(input_int):
 
 Cute. Clever. Still though, if the point was to stay away from libraries/built-ins and implement the algorithm myself I needed to see what Python does under the hood for `.bit_length()`. Turns out, it's just what I did but [wearing a hat](https://python-reference.readthedocs.io/en/latest/docs/ints/bit_length.html): 
 
->If x is nonzero, then x.bit_length() is the unique positive integer k such that 2**>(k-1) <= abs(x) < 2**k.
+```
+If x is nonzero, then x.bit_length() is the unique positive integer k such that 2**>(k-1) <= abs(x) < 2**k.
+```
     
 Now I asked myself what I supposed the interviewer would have asked me had I not melted into the floor like the Elephant's Foot at Chernobyl: can we be **mOaR** efficient about this??? Two more minutes of poking around [nerdy corners of the internet](https://web.archive.org/web/20210726212120if_/https://www.researchgate.net/profile/Keith-Randall/publication/2809440_Using_de_Bruijn_Sequences_to_Index_a_1_in_a_Computer_Word/links/0fcfd5107691fdedff000000/Using-de-Bruijn-Sequences-to-Index-a-1-in-a-Computer-Word.pdf) and I found something very cool, some kind of hybrid approach between my modular division idea and the bitwise AND trick; for fixed-size integers you can use a [de Bruijn sequence](https://en.wikipedia.org/wiki/De_Bruijn_sequence) to index a 1-bit in constant time.
 
