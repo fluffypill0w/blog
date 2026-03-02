@@ -62,7 +62,7 @@ Let's say we have an 8-bit integer with decimal value 8. That's `00001000` in bi
 
 Because we've multiplied the de Bruijn constant by a power of two (`2^3 == 8`), we've effectively left-shifted the constant by 3, which is the index position of the 1-bit. 
 
-Were the integer to be decimal value 4 instead of 8, we'd similarly see that `00000100 * 00011101 ==  01110100`, which is `11101000` left-shifted by 2 (`2^2 == 4`).
+Were the integer to be decimal value 4 instead of 8, we'd similarly see that `00000100 * 00011101 ==  01110100`, which is `00011101` left-shifted by 2 (`2^2 == 4`).
 
 Now let's say we are interested in the decimal value 40. That's `00101000` in binary. If we do our bit AND trick, we get `00101000 & 11011000 == 00001000`. Hold on just a minute...looks familiar 👀 If we go through the process of multiplication by the de Bruijn constant, we end up with `11101000`, exactly the same as when we calculated our key value for decimal 8.
 
