@@ -66,7 +66,7 @@ Were the integer to be decimal value 4 instead of 8, we'd similarly see that `00
 
 Now let's say we are interested in the decimal value 40. That's `00101000` in binary. If we do our bit AND trick, we get `00101000 & 11011000 == 00001000`. Hold on just a minute...looks familiar 👀 If we go through the process of multiplication by the de Bruijn constant, we end up with `11101000`, exactly the same as when we calculated our key value for decimal 8.
 
-Indeed, for all possible 8-bit integers we'll only ever have eight possible index values, and therefore eight key values to map to them. Here's where the cyclic nature of the de Bruijn constant comes in: because of its structure we will always find that its *n* most significant bits to be a unique substring when left-shifted by some number from 0 to `k^n-1`. 
+Indeed, for all possible 8-bit integers we'll only ever have eight possible index values, and therefore eight key values to map to them. Here's where the cyclic nature of the de Bruijn constant comes in: because of its structure we will always find that its *n* most significant bits are a unique substring when left-shifted by some number from 0 to `k^n-1`. 
 
 We now have everything we need to precompute a lookup table. For an 8-bit sequence, we're only interested in the three most significant bits (because *n = 3*, remember). We'll need to shift right by 5 (`8 - 3 == 5`) for whatever key value we've found by doing the multiplication step with our index bit and the de Bruijn constant. 
 
