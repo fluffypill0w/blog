@@ -60,17 +60,17 @@ Think of it like this: de Bruijn sequences are cyclic, with the sequences having
 
 Let's say we have an 8-bit integer with decimal value 8. That's `00001000` in binary. We don't need to do the bit AND trick here because this already happens to only contain one 1-bit, but for the sake of completeness let's do it anyway: `00001000 & 11111000 == 00001000`. Now, if we multiply this by the de Bruijn constant `00011101` (decimal value 29 in binary), we get `00001000 * 00011101 == 11101000`. 
 
-Because we've multiplied the de Bruijn constant by a power of two (`2^3 == 8`), we've effectively left-shifted the constant by 3, which is the index position of the 1-bit. 
+Because we've multiplied the de Bruijn constant by a power of two (`2**3 == 8`), we've effectively left-shifted the constant by 3, which is the index position of the 1-bit. 
 
-Were the integer to be decimal value 4 instead of 8, we'd similarly see that `00000100 * 00011101 ==  01110100`, which is `00011101` left-shifted by 2 (`2^2 == 4`).
+Were the integer to be decimal value 4 instead of 8, we'd similarly see that `00000100 * 00011101 ==  01110100`, which is `00011101` left-shifted by 2 (`2**2 == 4`).
 
 Now let's say we are interested in the decimal value 40. That's `00101000` in binary. If we do our bit AND trick, we get `00101000 & 11011000 == 00001000`. Hold on just a minute...looks familiar 👁️👄👁️ If we go through the process of multiplication by the de Bruijn constant, we end up with `11101000`, exactly the same as when we performed the calculation with decimal 8.
 
-Indeed, for all possible 8-bit integers we'll only ever have eight possible index values, and therefore eight key values to map to them. Here's where the cyclic nature of the de Bruijn constant comes in: because of its structure we will always find that its *n* most significant bits are a unique substring when left-shifted by some number from 0 to `k^n-1`. 
+Indeed, for all possible 8-bit integers we'll only ever have eight possible index values, and therefore eight key values to map to them. Here's where the cyclic nature of the de Bruijn constant comes in: because of its structure we will always find that its *n* most significant bits are a unique substring when left-shifted by some number from 0 to `k**n-1`. 
 
 We now have everything we need to precompute a lookup table. For an 8-bit sequence, we're only interested in the three most significant bits (because *n = 3*, remember). We'll need to shift right by 5 (`8 - 3 == 5`) for whatever key value we've found by doing the multiplication step with our index bit and the de Bruijn constant. 
 
-For decimal value 8, right-shitfting `11101000` gives us `111`, which we will map to an index value of 3 because we know that `2^3 == 8` and therefore the index value of decimal 8 is 3. We repeat this process for decimal value 4, where `01110100` becomes `011` which then maps to index value 2. The values for the remaining indices 0-1 and 4-7 will be mapped to all other possible three-digit subsequences of the upper three bits of our de Bruijn constant multiplied by our isolated 1-bit.
+For decimal value 8, right-shitfting `11101000` gives us `111`, which we will map to an index value of 3 because we know that `2**3 == 8` and therefore the index value of decimal 8 is 3. We repeat this process for decimal value 4, where `01110100` becomes `011` which then maps to index value 2. The values for the remaining indices 0-1 and 4-7 will be mapped to all other possible three-digit subsequences of the upper three bits of our de Bruijn constant multiplied by our isolated 1-bit.
 
 And voila! No more need to loop through mod 2 to the power of some increasing index! We've sort of frontloaded the cyclic nature of binary representation with this approach, which I think is beautiful.
 
